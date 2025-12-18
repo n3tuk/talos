@@ -1,0 +1,18 @@
+---
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://docs.siderolabs.com/talos/v1.11/schemas/v1alpha1_config.schema.json
+version: v1alpha1
+machine:
+  type: controlplane
+
+cluster:
+  network:
+    podSubnets:
+      - 172.25.0.0/16
+    serviceSubnets:
+      - 10.96.0.0/16
+
+  allowSchedulingOnControlPlanes: false
+
+  adminKubeconfig:
+    certLifetime: 1h0m0s

@@ -40,27 +40,14 @@ $ talosctl apply-config --insecure
 $ talosctl apply-config --insecure
     --nodes worker-0{1...9}.{environment}.kub3.uk \
     --file worker-0{1...9}.yaml
+```
 
+## Patching
+
+```console
 $ talosctl patch mc \
-    --nodes worker-01,worker-02,worker-03,worker-04,worker-05,worker-06
+    --nodes worker-01,worker-02,worker-03,worker-04,worker-05,worker-06 \
     --patch @patch-sysctl.yaml
 patched MachineConfigs.config.talos.dev/v1alpha1 at the node worker-0{x}
 Applied configuration without a reboot
-```
-
-## Labelling
-
-```console
-$ for worker in (seq 1 6)
-    kubectl label node worker-0$worker \
-      topology.kubernetes.io/region=production
-  end
-$ for worker in (seq 1 3)
-    kubectl label node worker-0$worker \
-      topology.kubernetes.io/zone=proxmox-0$worker
-  end
-$ for worker in (seq 4 6)
-    kubectl label node worker-0$worker \
-      topology.kubernetes.io/zone=proxmox-0(math $worker - 3)
-  end
 ```

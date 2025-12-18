@@ -1,0 +1,10 @@
+---
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://docs.siderolabs.com/talos/v1.11/schemas/v1alpha1_config.schema.json
+cluster:
+  scheduler:
+    resources:
+      limits: {}
+      requests:
+        cpu: 10m
+        memory: 96Mi

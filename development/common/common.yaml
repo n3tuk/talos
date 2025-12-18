@@ -1,0 +1,41 @@
+---
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://docs.siderolabs.com/talos/v1.11/schemas/v1alpha1_config.schema.json
+version: v1alpha1
+machine:
+  network:
+    interfaces:
+      - deviceSelector:
+          driver: virtio
+        dhcp: false
+        # Ensure we support Jumbo Frames for all nodes on the cluster to improve
+        # performance when dealing with container images, ceph filesystems, etc.
+        mtu: 9000
+    # Use the internal DNS servers for resolution
+    nameservers:
+      - 2a02:8010:8006:3a41:be24:11ff:fe9e:9f0e
+      - 2a02:8010:8006:3a41:be24:11ff:fe88:e455
+      - 172.23.41.6
+      - 172.23.41.7
+    searchDomains:
+      - development.kub3.uk
+  install:
+    # We're using VirtIO disks, so we must override to use /dev/vda
+    disk: /dev/vda
+    wipe: true
+  time:
+    disabled: false
+    servers:
+      - time.cloudflare.com
+    bootTimeout: 2m0s
+  features:
+    # We'll rely on CoreDNS within the cluster to forward DNS queries directly
+    # to the internal DNS servers, rather than via the stub on each host first
+    hostDNS:
+      enabled: false
+      forwardKubeDNSToHost: false
+
+  nodeLabels:
+    # The region is used by the Proxmox CSI plugin to select the correct
+    # credentails for volume provisioning on the Proxmox cluster
+    topology.kubernetes.io/region: development

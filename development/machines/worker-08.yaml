@@ -1,0 +1,16 @@
+---
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://docs.siderolabs.com/talos/v1.11/schemas/v1alpha1_config.schema.json
+version: v1alpha1
+machine:
+  network:
+    hostname: worker-08
+  certSANs:
+    - 2a02:8010:8006:3a37:be24:11ff:fef3:8d28
+    - 172.23.37.5
+
+  nodeLabels:
+    # The zone is used by the Proxmox CSI plugin to select the correct host for
+    # provisioning volumes on the Proxmox cluster, as well as to ensure that
+    # Pods are correctly scheduled to nodes in the right zone (where applicable)
+    topology.kubernetes.io/zone: proxmox-02

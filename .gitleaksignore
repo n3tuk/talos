@@ -1,0 +1,23 @@
+# Ignore all major issues with the secrets.yaml file in both development and
+# production as these files are encrypted through git-crypt and GPG and so
+# are not stored as plain-text secrets in the repository.
+
+development/secrets.yaml:generic-api-key:5
+development/secrets.yaml:generic-api-key:7
+development/secrets.yaml:generic-api-key:8
+development/secrets.yaml:generic-api-key:10
+development/secrets.yaml:private-key:14
+development/secrets.yaml:private-key:17
+development/secrets.yaml:private-key:20
+development/secrets.yaml:private-key:22
+development/secrets.yaml:private-key:25
+
+production/secrets.yaml:generic-api-key:5
+production/secrets.yaml:generic-api-key:7
+production/secrets.yaml:generic-api-key:8
+production/secrets.yaml:generic-api-key:10
+production/secrets.yaml:private-key:14
+production/secrets.yaml:private-key:17
+production/secrets.yaml:private-key:20
+production/secrets.yaml:private-key:22
+production/secrets.yaml:private-key:25

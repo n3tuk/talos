@@ -1,0 +1,7 @@
+development/_build
+development/talosconfig
+production/_build
+production/talosconfig
+
+.task
+.prettiercache

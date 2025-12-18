@@ -1,0 +1,6 @@
+---
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://docs.siderolabs.com/talos/v1.11/schemas/v1alpha1_config.schema.json
+version: v1alpha1
+machine:
+  type: worker

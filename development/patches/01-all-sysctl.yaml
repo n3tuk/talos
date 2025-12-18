@@ -1,0 +1,8 @@
+---
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://docs.siderolabs.com/talos/v1.11/schemas/v1alpha1_config.schema.json
+machine:
+  sysctls:
+    net.core.rmem_max: '7864320'
+    net.core.wmem_max: '7864320'
+    vm.max_map_count: '262144'
