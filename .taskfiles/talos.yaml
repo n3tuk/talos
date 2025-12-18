@@ -1,0 +1,104 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: 3
+
+tasks:
+  generate:
+    desc: Generate all machine configurations
+    silent: true
+    cmds:
+      - task: generate:talosconfig
+      - for: ['01', '02', '03']
+        task: generate:controller-{{ .ITEM }}
+      - for: ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+        task: generate:worker-{{ .ITEM }}
+
+  make-build:
+    desc: Make the _build/ export directory
+    internal: true
+    silent: true
+    cmds:
+      - cmd: mkdir -p _build
+
+  generate:talosconfig:
+    desc: Generate the Talos configuration for cluster access
+    silent: true
+    sources:
+      - secrets.yaml
+      - common/common.yaml
+    cmds:
+      - cmd: |-
+          # talosctl gen config --output _build/{{ .name }}.yaml
+          talosctl gen config development \
+            https://api.development.kub3.uk:6443 \
+            --with-secrets secrets.yaml \
+            --config-patch @common/common.yaml \
+            --output-types talosconfig \
+            --output talosconfig \
+            --force
+      - cmd: echo -e '{{ .cg }}Completed{{ .cc }}'
+
+  generate:*:
+    label: >-
+      {{ trimSuffix ":*" .TASK }}:{{
+         if (gt (len (index .MATCH 0)) 0)
+           }}{{ index .MATCH 0 }}{{
+         else
+           }}{{ "{" }}machine-name{{ "}" }}{{ end }}
+    prefix: '{{ trimSuffix ":*" .TASK }}:{{ index .MATCH 0 }}'
+    desc: Generate the machine configuration for individual machines
+    silent: true
+    sources:
+      - secrets.yaml
+      - common/common.yaml
+      - common/{{ .type }}.yaml
+      - machines/{{ .name }}.yaml
+      - patches/*.yaml
+    vars:
+      name: '{{ index .MATCH 0 }}'
+      type:
+        sh: |
+          if [[ "{{ index .MATCH 0 }}" == controller-?? ]]; then
+            echo -n control-plane
+          else
+            echo -n worker
+          fi
+      patches:
+        sh: |
+          # Allow for zero patches in the for loop below
+          shopt -s nullglob
+
+          echo "--config-patch @common/common.yaml \\"
+          echo "  --config-patch @common/{{ .type }}.yaml \\"
+          echo "  --config-patch @machines/{{ .name }}.yaml \\"
+          if [[ -d patches ]]; then
+            for file in patches/*.yaml; do
+              if [[ ${file} =~ /[0-9]{2}-all-/ ]]; then
+                echo "  --config-patch @${file} \\"
+              elif [[ ${file} =~ /[0-9]{2}-control-plane-/ ]]; then
+                echo "  --config-patch-control-plane @${file} \\"
+              elif [[ ${file} =~ /[0-9]{2}-worker-/ ]]; then
+                echo "  --config-patch-worker @${file} \\"
+              fi
+            done
+          fi
+    deps:
+      - task: make-build
+    cmds:
+      - cmd: |-
+          # test ! -f machines/{{ .name }}.yaml
+          if test ! -f machines/{{ .name }}.yaml; then
+            echo -e '{{ .cr }}ERROR{{ .cc }}' \
+              'Machine configuration file machines/{{ .name }}.yaml not found'
+            exit 1
+          fi
+      - cmd: |-
+          # talosctl gen config --output _build/{{ .name }}.yaml
+          talosctl gen config development \
+            https://api.development.kub3.uk:6443 \
+            --with-secrets secrets.yaml \
+            {{ .patches }}
+            --output-types {{ .type | replace "-" "" }} \
+            --output _build/{{ .name }}.yaml \
+            --force
+      - cmd: echo -e '{{ .cg }}Completed{{ .cc }}'
